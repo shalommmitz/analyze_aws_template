@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+import json, yaml, os
+from sys import argv
+
+if len(argv)==2:
+    fn = argv[1]
+else:
+    fn = input("Enter cloudFormation template file name > ")
+    
+if not os.path.isfile(fn):
+    print(f'The file "{fn}" does not exist - Aborting.')
+    exit()
+
+try:
+    t = json.load(open(fn))
+except:
+    try:
+        t = yaml.safe_load(open(fn))
+    except:
+        print("Not a JSON or YMAL file - Aborting.")
+        exit()
+    
+try:
+    r = t["Resources"]
+except:
+    print("Not a valid template file: key 'Resources' is missing - Aborting")
+    exit()
+print("resources:")
+for resource in r.keys():
+    print("   ",resource)
+    keys = list(r[resource].keys())
+    if "Type" in r[resource].keys():
+        print("       Type:", r[resource]["Type"])
+        keys.remove("Type")
+    if "Properties" in r[resource].keys():
+        print("       Properties:", list(r[resource]["Properties"].keys()))
+        keys.remove("Properties")
+    print("       Other keys:",keys)
+
